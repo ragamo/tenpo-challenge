@@ -37,14 +37,13 @@ function LoginComponent() {
     try {
       evt.preventDefault()
       const data = new FormData(evt.currentTarget)
-      const fieldValue = data.get('username')
+      const username = data.get('username')?.toString()
+      const password = data.get('password')?.toString()
 
-      if (!fieldValue) return
-      const username = fieldValue.toString()
-      await auth.login(username)
+      if (!username || !password) return
 
+      await auth.login(username, password)
       await router.invalidate()
-
       await navigate({ to: search.redirect || fallback })
     } catch (error) {
       console.error('Error logging in: ', error)
@@ -72,8 +71,21 @@ function LoginComponent() {
             <input
               id="username-input"
               name="username"
-              placeholder="Enter your name"
+              placeholder="Enter your username"
               type="text"
+              className="border rounded-md p-2 w-full"
+              required
+            />
+          </div>
+          <div className="grid gap-2 items-center min-w-[300px]">
+            <label htmlFor="password-input" className="text-sm font-medium">
+              Password
+            </label>
+            <input
+              id="password-input"
+              name="password"
+              placeholder="Enter your password"
+              type="password"
               className="border rounded-md p-2 w-full"
               required
             />

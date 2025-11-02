@@ -1,51 +1,43 @@
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState } from 'react'
+import { mockLogin, mockValidateToken } from './services/login.mock'
+import type { ReactNode } from 'react'
 
-interface User {
+export interface User {
   id: string
   username: string
   email: string
+  token: string
 }
 
 export interface AuthContext {
   isAuthenticated: boolean
-  login: (username: string) => Promise<void>
-  logout: () => Promise<void>
-  user: string | null
+  login: (username: string, password: string) => Promise<void>
+  logout: () => void
+  user: User | null
 }
 
 const AuthContext = createContext<AuthContext | undefined>(undefined)
+const storageKey = 'auth-token'
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
 
   // Restore auth state on app load
   useEffect(() => {
-    const token = localStorage.getItem('auth-token')
+    const token = localStorage.getItem(storageKey)
     if (token) {
-      // Validate token with your API
-      fetch('/api/validate-token', {
-        headers: { Authorization: `Bearer ${token}` },
+      mockValidateToken(token).then(({ valid, user: userData }) => {
+        if (valid) {
+          setUser(userData)
+          setIsAuthenticated(true)
+        } else {
+          localStorage.removeItem(storageKey)
+        }
       })
-        .then((response) => response.json())
-        .then((userData) => {
-          if (userData.valid) {
-            setUser(userData.user)
-            setIsAuthenticated(true)
-          } else {
-            localStorage.removeItem('auth-token')
-          }
-        })
-        .catch(() => {
-          localStorage.removeItem('auth-token')
-        })
-        .finally(() => {
-          setIsLoading(false)
-        })
-    } else {
-      setIsLoading(false)
     }
+    setIsLoading(false)
   }, [])
 
   // Show loading state while checking auth
@@ -58,20 +50,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const login = async (username: string, password: string) => {
-    // Replace with your authentication logic
-    const response = await fetch('/api/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password }),
-    })
+    try {
+      const userData = await mockLogin(username, password)
+      if (userData) {
+        setUser(userData)
+        setIsAuthenticated(true)
 
-    if (response.ok) {
-      const userData = await response.json()
-      setUser(userData)
-      setIsAuthenticated(true)
-      // Store token for persistence
-      localStorage.setItem('auth-token', userData.token)
-    } else {
+        // Persist token in localStorage
+        localStorage.setItem(storageKey, userData.token)
+      }
+    } catch (error) {
       throw new Error('Authentication failed')
     }
   }
@@ -79,7 +67,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = () => {
     setUser(null)
     setIsAuthenticated(false)
-    localStorage.removeItem('auth-token')
+    localStorage.removeItem(storageKey)
   }
 
   return (
