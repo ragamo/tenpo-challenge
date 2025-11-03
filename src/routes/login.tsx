@@ -7,6 +7,7 @@ import {
 import { useState } from 'react'
 import { z } from 'zod'
 
+import { InfoIcon } from 'lucide-react'
 import { useAuth } from '../auth'
 import type { FormEvent } from 'react'
 
@@ -58,12 +59,14 @@ function LoginComponent() {
   return (
     <div className="p-2 grid gap-2 place-items-center">
       <h3 className="text-xl">Login page</h3>
-      {search.redirect ? (
+      {search.redirect && (
         <p className="text-red-500">You need to login to access this page.</p>
-      ) : (
-        <p>Login to see all the cool content in here.</p>
       )}
       <form className="mt-4 w-full sm:max-w-sm" onSubmit={onFormSubmit}>
+        <div className="text-sm text-amber-800 border border-amber-500 rounded-md p-2 mb-4 bg-amber-100 flex items-center gap-2">
+          <InfoIcon className="w-4 h-4 " />
+          Any username and password will work.
+        </div>
         <fieldset disabled={isLoggingIn} className="w-full grid gap-2">
           <div className="grid gap-2 items-center w-full">
             <label htmlFor="username-input" className="text-sm font-medium">
