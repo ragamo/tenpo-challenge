@@ -4,14 +4,16 @@ import {
   useRouter,
   useRouterState,
 } from '@tanstack/react-router'
-import * as React from 'react'
+import { useState } from 'react'
 import { z } from 'zod'
 
 import { useAuth } from '../auth'
+import type { FormEvent } from 'react'
 
 const fallback = '/dashboard' as const
 
 export const Route = createFileRoute('/login')({
+  component: LoginComponent,
   validateSearch: z.object({
     redirect: z.string().optional().catch(''),
   }),
@@ -20,7 +22,6 @@ export const Route = createFileRoute('/login')({
       throw redirect({ to: search.redirect || fallback })
     }
   },
-  component: LoginComponent,
 })
 
 function LoginComponent() {
@@ -28,11 +29,11 @@ function LoginComponent() {
   const router = useRouter()
   const isLoading = useRouterState({ select: (s) => s.isLoading })
   const navigate = Route.useNavigate()
-  const [isSubmitting, setIsSubmitting] = React.useState(false)
-
   const search = Route.useSearch()
 
-  const onFormSubmit = async (evt: React.FormEvent<HTMLFormElement>) => {
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const onFormSubmit = async (evt: FormEvent<HTMLFormElement>) => {
     setIsSubmitting(true)
     try {
       evt.preventDefault()
@@ -62,9 +63,9 @@ function LoginComponent() {
       ) : (
         <p>Login to see all the cool content in here.</p>
       )}
-      <form className="mt-4 max-w-lg" onSubmit={onFormSubmit}>
+      <form className="mt-4 w-full sm:max-w-sm" onSubmit={onFormSubmit}>
         <fieldset disabled={isLoggingIn} className="w-full grid gap-2">
-          <div className="grid gap-2 items-center min-w-[300px]">
+          <div className="grid gap-2 items-center w-full">
             <label htmlFor="username-input" className="text-sm font-medium">
               Username
             </label>
@@ -77,7 +78,7 @@ function LoginComponent() {
               required
             />
           </div>
-          <div className="grid gap-2 items-center min-w-[300px]">
+          <div className="grid gap-2 items-center w-full">
             <label htmlFor="password-input" className="text-sm font-medium">
               Password
             </label>

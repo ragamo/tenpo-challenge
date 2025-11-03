@@ -1,4 +1,6 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
+import { useQuery } from '@tanstack/react-query'
+import { searchStations } from '../../services/radios.service'
 
 export const Route = createFileRoute('/_authed/dashboard')({
   component: RouteComponent,
@@ -15,5 +17,9 @@ export const Route = createFileRoute('/_authed/dashboard')({
 })
 
 function RouteComponent() {
+  const { data } = useQuery({
+    queryKey: ['stations'],
+    queryFn: () => searchStations(),
+  })
   return <div>Hello "/_authed/dashboard"!</div>
 }

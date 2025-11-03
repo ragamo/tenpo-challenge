@@ -1,7 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { RouterProvider, createRouter } from '@tanstack/react-router'
-
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { routeTree } from './routeTree.gen'
 import { AuthProvider, useAuth } from './auth'
 import './styles.css'
@@ -15,6 +15,8 @@ const router = createRouter({
     auth: undefined!,
   },
 })
+
+const queryClient = new QueryClient()
 
 // Register the router for typesafety
 declare module '@tanstack/react-router' {
@@ -30,9 +32,11 @@ function App() {
 
 function AuthedApp() {
   return (
-    <AuthProvider>
-      <App />
-    </AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <App />
+      </AuthProvider>
+    </QueryClientProvider>
   )
 }
 

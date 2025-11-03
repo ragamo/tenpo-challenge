@@ -1,5 +1,6 @@
+import axios from 'axios'
 import { createContext, useContext, useEffect, useState } from 'react'
-import { mockLogin, mockValidateToken } from './services/login.mock'
+import { mockValidateToken } from './services/user.service.mock'
 import type { ReactNode } from 'react'
 
 export interface User {
@@ -30,7 +31,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (token) {
       mockValidateToken(token).then(({ valid, user: userData }) => {
         if (valid) {
-          setUser(userData)
+          setUser(userData as User)
           setIsAuthenticated(true)
         } else {
           localStorage.removeItem(storageKey)
@@ -51,14 +52,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (username: string, password: string) => {
     try {
-      const userData = await mockLogin(username, password)
-      if (userData) {
-        setUser(userData)
-        setIsAuthenticated(true)
-
-        // Persist token in localStorage
-        localStorage.setItem(storageKey, userData.token)
-      }
+      const response = await axios.post<User>('/api/user', {
+        username,
+        password,
+      })
+      setUser(response.data)
+      setIsAuthenticated(true)
+      localStorage.setItem(storageKey, response.data.token)
     } catch (error) {
       throw new Error('Authentication failed')
     }
