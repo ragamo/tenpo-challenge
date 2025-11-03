@@ -15,6 +15,7 @@ export default defineConfig({
     tailwindcss(),
     apiRoutes({
       mode: 'isolated',
+      server: 'src/server/server.ts',
     }),
   ],
 })
