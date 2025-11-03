@@ -3,7 +3,8 @@ import { SECRET_KEY, fakeUser } from '../api/user/consts'
 
 export const mockValidateToken = async (token: string) => {
   try {
-    await jwtVerify(token, SECRET_KEY)
+    const secretKey = new TextEncoder().encode(SECRET_KEY)
+    await jwtVerify(token, secretKey)
     return { valid: true, user: fakeUser }
   } catch (error) {
     return { valid: false, user: null }

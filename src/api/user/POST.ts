@@ -9,7 +9,7 @@ export default async (req: Request, res: Response, _: NextFunction) => {
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime('1h')
-    .sign(SECRET_KEY)
+    .sign(new TextEncoder().encode(SECRET_KEY))
 
   res.json({
     ...fakeUser,

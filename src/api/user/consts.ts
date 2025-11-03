@@ -1,4 +1,4 @@
-export const SECRET_KEY = new TextEncoder().encode('supersecretkey')
+export const SECRET_KEY = 'supersecretkey'
 
 export const fakeUser = {
   id: '1',
